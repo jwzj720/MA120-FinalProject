@@ -3,9 +3,11 @@ import we
 import json
 import numpy as np
 import argparse
+import matplotlib.colors as mcolors
 from sklearn.decomposition import PCA
 import sys
 import plotly.express as px
+from collections import defaultdict
 if sys.version_info[0] < 3:
     import io
     open = io.open
@@ -31,8 +33,11 @@ def debias(E, gender_specific_words, definitional, equalize):
     print(candidates)
     # generating a list of all candidate words that appear in the word embedding dataset
     plot_words = []
+    cdm = defaultdict(lambda: 'rgb(0,0,0)')
     for t in candidates:
         if t[0] in E.index and t[1] in E.index:
+            cdm[t[0]] = 'rgb(255,0,0)'
+            cdm[t[1]] = 'rgb(0,0,255)'
             plot_words.append(t[0])
             plot_words.append(t[1])
     
@@ -45,8 +50,9 @@ def debias(E, gender_specific_words, definitional, equalize):
     'z': pca_result[:, 2],
     'word': plot_words
     }
+    colors = [cdm[k] for k in data['word']]
     # Create an interactive 3D scatter plot
-    fig = px.scatter_3d(data, x='x', y='y', z='z', text='word', title = 'Before Equalizing')
+    fig = px.scatter_3d(data, x='x', y='y', z='z', text='word', title = 'Before Equalizing' ,color = 'word', color_discrete_map=cdm)
 
     # Customize the appearance of the plot (optional)
     fig.update_traces(marker=dict(size=8))
@@ -64,6 +70,8 @@ def debias(E, gender_specific_words, definitional, equalize):
             E.vecs[E.index[b]] = -z * gender_direction + y
     E.normalize()
 
+    
+
     word_matrix = np.array([E.v(word) for word in plot_words])
     pca = PCA(n_components=3)
     pca_result = pca.fit_transform(word_matrix)
@@ -74,8 +82,7 @@ def debias(E, gender_specific_words, definitional, equalize):
     'word': plot_words
     }
     # Create an interactive 3D scatter plot
-    fig = px.scatter_3d(data, x='x', y='y', z='z', text='word', title = 'After Equalizing')
-
+    fig = px.scatter_3d(data, x='x', y='y', z='z', text='word', title = 'After Equalizing', color = 'word',color_discrete_map=cdm)
     # Customize the appearance of the plot (optional)
     fig.update_traces(marker=dict(size=8))
 
