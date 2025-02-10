@@ -21,3 +21,10 @@ def load_professions():
           'definitional female -1.0 -> definitional male 1.0\n' +
           'stereotypical female -1.0 -> stereotypical male 1.0')
     return professions
+
+
+def load_pairs():
+    pairs_file = os.path.join(PKG_DIR, '../data', 'definitional_pairs.json')
+    with open(pairs_file, 'r') as f:
+        pairs = json.load(f)
+    return pairs
