@@ -40,7 +40,11 @@ def debias(E, gender_specific_words, definitional, equalize):
             cdm[t[1]] = 'rgb(0,0,255)'
             plot_words.append(t[0])
             plot_words.append(t[1])
-    
+    professions  = json.load(open('../data/professions.json', 'r'))
+    for p in professions:
+        if p[0] in E.index:
+            cdm[p[0]] = 'rgb(0,255,0)'
+            plot_words.append(p[0])
     word_matrix = np.array([E.v(word) for word in plot_words])
     pca = PCA(n_components=3)
     pca_result = pca.fit_transform(word_matrix)
@@ -53,6 +57,7 @@ def debias(E, gender_specific_words, definitional, equalize):
     colors = [cdm[k] for k in data['word']]
     # Create an interactive 3D scatter plot
     fig = px.scatter_3d(data, x='x', y='y', z='z', text='word', title = 'Before Equalizing' ,color = 'word', color_discrete_map=cdm)
+
 
     # Customize the appearance of the plot (optional)
     fig.update_traces(marker=dict(size=8))
@@ -98,6 +103,7 @@ if __name__ == "__main__":
     parser.add_argument("gendered_words_filename", help="File containing words not to neutralize (one per line)")
     parser.add_argument("equalize_filename", help="???.bin")
     parser.add_argument("debiased_filename", help="???.bin")
+    
 
     args = parser.parse_args()
     print(args)
